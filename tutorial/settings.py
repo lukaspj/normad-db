@@ -149,9 +149,11 @@ CORS_ORIGIN_WHITELIST = (
     'localhost:4200',
     '127.0.0.1:4200',
     '127.0.0.1:8000',
+    'normad.flynn.lukasj.org',
 )
 CSRF_TRUSTED_ORIGINS = (
     'localhost:4200',
+    'normad.flynn.lukasj.org',
 )
 CORS_ALLOW_CREDENTIALS = True
 
