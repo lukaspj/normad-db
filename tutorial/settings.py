@@ -23,7 +23,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'b-00+l4p3@6a@l3&1#^=5js^d13gcxur3e5a7!xjush61cyc-r')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = bool(os.environ.get('DJANGO_DEBUG', True))
+DEBUG = os.environ.get('DJANGO_DEBUG', 'True').lower() == 'true'
 
 print("BOOTING DJANGO WITH DEBUG AS %s" % DEBUG)
 
