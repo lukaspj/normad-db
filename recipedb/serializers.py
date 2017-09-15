@@ -1,3 +1,4 @@
+from django.contrib.auth.backends import UserModel
 from django.contrib.auth.models import User
 from rest_framework import serializers
 
@@ -83,6 +84,11 @@ class IngredientSerializer(serializers.ModelSerializer):
         )
 
 class UserSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True)
+
+    date_joined = serializers.DateTimeField(read_only=True)
+    is_superuser = serializers.BooleanField(read_only=True)
+    is_active = serializers.BooleanField(read_only=True)
     #recipes = serializers.PrimaryKeyRelatedField(many=True, queryset=Recipe.objects.all())
 
     class Meta:
@@ -90,5 +96,21 @@ class UserSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'username',
+            'password',
+            'date_joined',
+            'is_superuser',
+            'is_active',
         #    'recipes',
         )
+
+    def create(self, validated_data):
+        user = User.objects.create(
+            username = validated_data['username']
+        )
+
+        # call set_password on user object, otherwise
+        # it will be stored in plain text.
+        user.set_password(validated_data['password'])
+        user.save()
+
+        return user

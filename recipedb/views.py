@@ -1,9 +1,11 @@
 from django.contrib.auth.models import User
 from rest_framework import viewsets, permissions, mixins
+from rest_framework.generics import CreateAPIView
 from rest_framework.response import Response
 from rest_framework.decorators import list_route
 
 from recipedb.models import Recipe, Ingredient, RecipeIngredient, UNITS
+from recipedb.permissions import IsStaffOrTargetUser
 from recipedb.serializers import RecipeSerializer, IngredientSerializer, RecipeIngredientSerializer, UserSerializer, \
     UnitSerializer
 
@@ -44,6 +46,19 @@ class RecipeIngredientViewSet(viewsets.ModelViewSet):
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+
+    def get_permissions(self):
+        if self.request.method == 'POST':
+            return (permissions.AllowAny(),)
+        else:
+            return (IsStaffOrTargetUser(),)
+
+
+def jwt_response_payload_handler(token, user=None, request=None):
+    return {
+        'token': token,
+        'user': UserSerializer(user, context={'request': request}).data
+    }
 
 class UnitViewSet(viewsets.GenericViewSet):
     queryset = map(lambda x: {'abbr': x[0], 'name': x[1]}, UNITS)
