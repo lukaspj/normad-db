@@ -1,9 +1,14 @@
+from django.contrib.auth.models import User
 from rest_framework import serializers
 
 from recipedb.models import Recipe, Ingredient, UNITS, RecipeIngredient
-
+class UnitSerializer(serializers.Serializer):
+    abbr = serializers.CharField()
+    name = serializers.CharField()
 
 class RecipeIngredientSerializer(serializers.ModelSerializer):
+    unit = serializers.ChoiceField(choices=UNITS)
+
     class Meta:
         model = RecipeIngredient
         fields = ('id', 'created', 'recipe', 'ingredient', 'amount', 'unit')
@@ -65,32 +70,25 @@ class RecipeSerializer(serializers.ModelSerializer):
         return instance
 
 
-class IngredientSerializer(serializers.Serializer):
-    id = serializers.IntegerField(read_only=True)
-    created = serializers.DateTimeField(read_only=True)
-    name = serializers.CharField(max_length=100)
-    description = serializers.CharField(max_length=256, allow_blank=True, default='')
-    image = serializers.URLField(allow_blank=True, default='')
-    estprice = serializers.FloatField(allow_null=True, default=None)
+class IngredientSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Ingredient
+        fields = (
+            'id',
+            'created',
+            'name',
+            'description',
+            'image',
+            'estprice',
+        )
 
-    def create(self, validate_data):
-        """
-        Create and return a new `Recipe` instance, given the validated data.
-        :return: A new Recipe instance
-        """
-        return Ingredient.objects.create(**validate_data)
+class UserSerializer(serializers.ModelSerializer):
+    #recipes = serializers.PrimaryKeyRelatedField(many=True, queryset=Recipe.objects.all())
 
-    def update(self, instance, validated_data):
-        """
-        Update and return an existing `Recipe` instance, given the validated data.
-        :param instance:
-        :param validated_data:
-        :return:
-        """
-        instance.name = validated_data.get('name', instance.name)
-        instance.description = validated_data.get('description', instance.description)
-        instance.image = validated_data.get('image', instance.image)
-        instance.estprice = validated_data.get('estprice', instance.estprice)
-        instance.save()
-        return instance
-
+    class Meta:
+        model = User
+        fields = (
+            'id',
+            'username',
+        #    'recipes',
+        )

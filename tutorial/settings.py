@@ -139,7 +139,10 @@ USE_TZ = True
 # http://www.django-rest-framework.org
 
 REST_FRAMEWORK = {
-    'PAGE_SIZE': 10
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+    ),
+    'PAGE_SIZE': 10,
 }
 
 # CORS
