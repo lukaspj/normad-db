@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from drf_haystack.viewsets import HaystackViewSet
 from rest_framework import viewsets, permissions, mixins
 from rest_framework.generics import CreateAPIView
 from rest_framework.response import Response
@@ -7,7 +8,7 @@ from rest_framework.decorators import list_route
 from recipedb.models import Recipe, Ingredient, RecipeIngredient, UNITS
 from recipedb.permissions import IsStaffOrTargetUser
 from recipedb.serializers import RecipeSerializer, IngredientSerializer, RecipeIngredientSerializer, UserSerializer, \
-    UnitSerializer
+    UnitSerializer, RecipeSearchSerializer, IngredientSearchSerializer
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
@@ -24,6 +25,19 @@ class RecipeViewSet(viewsets.ModelViewSet):
         serializer = RecipeSerializer(queryset, many=True)
         return Response(serializer.data)
 
+    def search(self, request, number=5):
+        queryset = self.queryset.order_by()
+
+
+class RecipeSearchView(HaystackViewSet):
+    index_models = [Recipe]
+
+    serializer_class = RecipeSearchSerializer
+
+class IngredientSearchView(HaystackViewSet):
+    index_models = [Ingredient]
+
+    serializer_class = IngredientSearchSerializer
 
 
 class IngredientViewSet(viewsets.ModelViewSet):

@@ -20,7 +20,9 @@ from rest_framework_jwt.views import obtain_jwt_token
 from recipedb import views as recipeviews
 
 router = routers.DefaultRouter()
+router.register(r'recipes/search', recipeviews.RecipeSearchView, base_name="recipe-search")
 router.register(r'recipes', recipeviews.RecipeViewSet)
+router.register(r'ingredients/search', recipeviews.IngredientSearchView, base_name="ingredient-search")
 router.register(r'ingredients', recipeviews.IngredientViewSet)
 router.register(r'recipeingredients', recipeviews.RecipeIngredientViewSet)
 router.register(r'users', recipeviews.UserViewSet)

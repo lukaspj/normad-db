@@ -1,14 +1,31 @@
 from django.contrib.auth.backends import UserModel
 from django.contrib.auth.models import User
+from drf_haystack.serializers import HaystackSerializer, HaystackSerializerMixin
 from rest_framework import serializers
 
 from recipedb.models import Recipe, Ingredient, UNITS, RecipeIngredient
+from recipedb.search_indexes import RecipeIndex, IngredientIndex
+
+
 class UnitSerializer(serializers.Serializer):
     abbr = serializers.CharField()
     name = serializers.CharField()
 
+class IngredientSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Ingredient
+        fields = (
+            'id',
+            'created',
+            'name',
+            'description',
+            'image',
+            'estprice',
+        )
+
 class RecipeIngredientSerializer(serializers.ModelSerializer):
     unit = serializers.ChoiceField(choices=UNITS)
+    ingredient = IngredientSerializer(read_only=True)
 
     class Meta:
         model = RecipeIngredient
@@ -19,7 +36,10 @@ class RecipeSerializer(serializers.ModelSerializer):
     ingredients = RecipeIngredientSerializer(many=True)
 
     class Meta:
+        index_classes = [RecipeIndex]
+
         model = Recipe
+
         fields = (
             'id',
             'created',
@@ -71,18 +91,6 @@ class RecipeSerializer(serializers.ModelSerializer):
         return instance
 
 
-class IngredientSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Ingredient
-        fields = (
-            'id',
-            'created',
-            'name',
-            'description',
-            'image',
-            'estprice',
-        )
-
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
 
@@ -114,3 +122,35 @@ class UserSerializer(serializers.ModelSerializer):
         user.save()
 
         return user
+
+class RecipeSearchSerializer(HaystackSerializer):
+
+    class Meta:
+        index_classes = [RecipeIndex]
+        fields = [
+            'name',
+            'created'
+        ]
+
+    def to_representation(self, instance):
+        ret = super(HaystackSerializer, self).to_representation(instance)
+        ret["id"] = instance.object.pk
+        ret["image"] = instance.object.image
+        return ret
+
+class IngredientSearchSerializer(HaystackSerializer):
+
+    class Meta:
+        index_classes = [IngredientIndex]
+        fields = [
+            'text',
+            'name',
+            'created'
+        ]
+
+    def to_representation(self, instance):
+        ret = super(HaystackSerializer, self).to_representation(instance)
+        ret["id"] = instance.object.pk
+        ret["image"] = instance.object.image
+        ret["estprice"] = instance.object.estprice
+        return ret

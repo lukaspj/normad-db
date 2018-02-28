@@ -2,6 +2,9 @@ django==1.11.5
 djangorestframework==3.6.4
 djangorestframework-jwt==1.11.0
 django-cors-headers==2.1.0
+django-haystack==2.6.1
+drf-haystack==1.6.1
+Whoosh==2.7.4
 gunicorn==19.7.1
 whitenoise==3.3.0
 psycopg2==2.7.3.1
